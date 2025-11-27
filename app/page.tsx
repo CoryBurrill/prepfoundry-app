@@ -11,7 +11,7 @@ export default function HomePage() {
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 text-xs">
-              PF
+              🔪
             </div>
             <span className="text-lg font-semibold">PrepFoundry</span>
           </div>
@@ -43,7 +43,7 @@ export default function HomePage() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/sign-up"
+              href="/waitlist"
               className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400"
             >
               Get early access
