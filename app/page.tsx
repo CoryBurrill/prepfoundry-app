@@ -1,5 +1,6 @@
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SiteFooter } from "@/components/site-footer";
+import { Suspense } from "react";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -112,8 +113,11 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Footer */}
+      <Suspense fallback={null}>
         <SiteFooter />
-        
+      </Suspense>
+
       </div>
     </main>
   );
