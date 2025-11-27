@@ -1,4 +1,5 @@
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { SiteFooter } from "@/components/site-footer";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -111,9 +112,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <footer className="border-t border-slate-900 pt-4 text-xs text-slate-500">
-          © {new Date().getFullYear()} PrepFoundry • Built with Next.js + Supabase
-        </footer>
+        <SiteFooter />
+        
       </div>
     </main>
   );
