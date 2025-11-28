@@ -1,6 +1,7 @@
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export default function WaitlistPage() {
   async function joinWaitlist(formData: FormData) {
@@ -8,23 +9,71 @@ export default function WaitlistPage() {
 
     const supabase = await createClient();
 
-    const email = (formData.get("email") as string | null)?.trim();
+    // ---- Extract form fields ----
+    const rawEmail = formData.get("email") as string | null;
+    const email = rawEmail?.trim().toLowerCase() ?? null;
     const name = (formData.get("name") as string | null)?.trim() ?? null;
 
     if (!email) {
-      // In a real app, you'd return a form state instead of throwing
       throw new Error("Email is required");
     }
 
-    await supabase.from("waitlist").insert({
-      email,
-      name,
-      source: "landing",
-    });
+    // ---- Tracking: IP, User-Agent, Referer ----
+    const h = await headers();
 
-    // Simple thank-you redirect
-    redirect("/waitlist/thanks");
+    const ip =
+      h.get("x-forwarded-for")?.split(",")[0] ??
+      h.get("x-real-ip") ??
+      null;
+
+    const userAgent = h.get("user-agent") ?? null;
+    const referer = h.get("referer") ?? null;
+
+    // ---- Rate limiting: max 5 signups per IP per hour ----
+    if (ip) {
+      const oneHourAgo = new Date(Date.now() - 1000 * 60 * 60).toISOString();
+
+      const { data: recent, error: rateError } = await supabase
+        .from("waitlist")
+        .select("id, created_at")
+        .eq("ip", ip)
+        .gte("created_at", oneHourAgo);
+
+      if (rateError) {
+        console.error("Rate limit check failed:", rateError);
+        // Fail open: don't block legit users because of a rate-limit error
+      } else if (recent && recent.length >= 5) {
+        // Too many attempts from this IP – silently "succeed"
+        return redirect("/waitlist/thanks");
+      }
+    }
+
+    // ---- Insert into database ----
+    const { error } = await supabase
+      .from("waitlist")
+      .insert({
+        email,
+        name,
+        source: "landing",
+        ip,
+        user_agent: userAgent,
+        referer,
+      })
+      .select();
+
+    // Unique email constraint -> already on the list
+    if (error?.code === "23505") {
+      return redirect("/waitlist/thanks");
+    }
+
+    if (error) {
+      console.error("Waitlist insert error:", error);
+      throw new Error("Waitlist insert failed: " + error.message);
+    }
+
+    return redirect("/waitlist/thanks");
   }
+
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">

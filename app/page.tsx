@@ -20,7 +20,7 @@ export default function HomePage() {
             <a href="#features" className="hover:text-white">
               Features
             </a>
-            <a href="#beta" className="hover:text-white">
+            <a href="/auth/login" className="hover:text-white">
               Beta access
             </a>
           </nav>
@@ -43,7 +43,7 @@ export default function HomePage() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/waitlist"
+              href="/auth/login"
               className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400"
             >
               Get early access
@@ -105,7 +105,7 @@ export default function HomePage() {
             </div>
 
             <Link
-              href="/waitlist"
+              href="/auth/login"
               className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400"
             >
               Join the waitlist
