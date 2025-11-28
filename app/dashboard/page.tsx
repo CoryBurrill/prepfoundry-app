@@ -1,4 +1,5 @@
 // app/dashboard/page.tsx
+import { InventoryPanel } from "./components/inventory-panel";
 import { ensureUserContext } from "@/lib/ensureUserContext";
 import { featureGate } from "@/lib/feature-gate";
 import { redirect } from "next/navigation";
@@ -64,7 +65,9 @@ async function DashboardContent() {
           <p className="text-sm text-muted-foreground">
             This is only visible to close friends/family (beta_private) and admin.
           </p>
-          {/* TODO: WIP features, debug panels, etc. */}
+
+            <InventoryPanel />
+            
         </section>
       )}
     </main>

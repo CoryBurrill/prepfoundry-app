@@ -1,7 +1,6 @@
 import { AuthButton } from "@/components/auth-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -18,13 +17,11 @@ export default function DashboardLayout({
             <div className="flex gap-5 items-center font-semibold">
               <Link href={"/dashboard"}>PrepFoundry</Link>
             </div>
-            {!hasEnvVars ? (
-              <EnvVarWarning />
-            ) : (
+             
               <Suspense>
                 <AuthButton />
               </Suspense>
-            )}
+              
           </div>
         </nav>
 
