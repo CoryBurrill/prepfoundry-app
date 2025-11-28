@@ -1,26 +1,29 @@
-// app/auth/confirm/route.ts
 import { createClient } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-
-  if (!code) {
-    return NextResponse.redirect(
-      `/auth/error?error=Missing+code+parameter`
-    );
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    // e.g. https://prepfoundry.app in prod
+    return process.env.NEXT_PUBLIC_SITE_URL;
   }
 
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
+  }
+
+  // fallback
+  return "https://prepfoundry.app";
+}
+
+export async function sendMagicLink(email: string) {
   const supabase = await createClient();
+  const baseUrl = getBaseUrl();
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${baseUrl}/auth/confirm`,
+    },
+  });
 
-  if (error) {
-    return NextResponse.redirect(
-      `/auth/error?error=${encodeURIComponent(error.message)}`
-    );
-  }
-
-  return NextResponse.redirect("/dashboard");
+  if (error) throw error;
 }
