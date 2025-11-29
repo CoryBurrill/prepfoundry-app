@@ -2,6 +2,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { SiteFooter } from "@/components/site-footer";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -10,10 +11,16 @@ export default function HomePage() {
         {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 text-xs">
-              🔪
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-700 text-xs">
+            <Image
+              src="/logoWh.png" 
+              alt="PrepFoundry logo"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
             </div>
-            <span className="text-lg font-semibold">PrepFoundry</span>
+            <span className="text-2xl font-semibold">PrepFoundry</span>
           </div>
 
           <nav className="flex gap-6 text-sm text-slate-300">
