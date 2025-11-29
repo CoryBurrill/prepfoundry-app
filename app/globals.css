@@ -66,3 +66,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes overlayFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+@layer utilities {
+  .overlay-fade {
+    animation: overlayFade 5s ease-in-out forwards;
+  }
+}
