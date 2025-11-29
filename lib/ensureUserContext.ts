@@ -28,6 +28,10 @@ async function getServerSupabase() {
           }
         },
       },
+      auth: {
+        // Avoid PKCE "Auth session missing!" explosions – use implicit flow
+        flowType: "implicit",
+      },
     }
   );
 }
@@ -35,13 +39,37 @@ async function getServerSupabase() {
 export async function ensureUserContext(): Promise<EnsureUserContextResult> {
   const supabase = await getServerSupabase();
 
-  // 1. Get current auth user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  // 1. Get current auth user (and gracefully handle missing session)
+  let user: any | null = null;
 
-  if (userError) throw userError;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      // Treat "Auth session missing!" as simply "no user"
+      if (
+        error.name === "AuthSessionMissingError" ||
+        error.message === "Auth session missing!"
+      ) {
+        return { user: null, profile: null, household: null };
+      }
+
+      // Anything else is a real error
+      throw error;
+    }
+
+    user = data.user;
+  } catch (err: any) {
+    if (
+      err?.name === "AuthSessionMissingError" ||
+      err?.message === "Auth session missing!"
+    ) {
+      return { user: null, profile: null, household: null };
+    }
+
+    throw err;
+  }
+
   if (!user) {
     return { user: null, profile: null, household: null };
   }
