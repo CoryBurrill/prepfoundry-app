@@ -1,7 +1,11 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { Suspense } from "react";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -9,8 +13,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "PrepFoundry",
+  description: "The kitchen brain you don't have to think about.",
 };
 
 const geistSans = Geist({
@@ -33,7 +37,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <SiteHeader />
+
+            <div className="flex-1 flex flex-col">
+              {children}
+            </div>
+
+            <Suspense
+              fallback={
+                <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16 text-muted-foreground">
+                  Loading footer…
+                </footer>
+              }
+            >
+              <SiteFooter />
+            </Suspense>
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -29,7 +31,6 @@ async function getServerSupabase() {
         },
       },
       auth: {
-        // Avoid PKCE "Auth session missing!" explosions – use implicit flow
         flowType: "implicit",
       },
     }
