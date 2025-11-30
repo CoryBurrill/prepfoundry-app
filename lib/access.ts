@@ -6,7 +6,7 @@ import { featureGate } from "@/lib/feature-gate";
 
 const BETA_MODE = true; // flip to false when you want everything public
 
-type PageKey = "dashboard" | "inventory" | "recipes" | "planner" | "grocery";
+type PageKey = "dashboard" | "inventory" | "recipes" | "planner" | "grocery" | "purchasing";
 
 type PageAccessConfig = {
   viewFeature: string;
@@ -32,6 +32,10 @@ const PAGE_FEATURES: Record<PageKey, PageAccessConfig> = {
   },
   grocery: {
     viewFeature: "beta_public_grocery",
+    interactiveFeature: "beta_private_extras",
+  },
+  purchasing: {
+    viewFeature: "beta_public_purchasing",
     interactiveFeature: "beta_private_extras",
   },
 };

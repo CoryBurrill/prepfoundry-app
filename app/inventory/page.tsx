@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GatedButton } from "@/components/gated-button";
 import { Separator } from "@/components/ui/separator";
 import { Package, PlusCircle } from "lucide-react";
 import { getPageAccess } from "@/lib/access";
@@ -94,10 +95,10 @@ function EmptyInventoryState({
           receipts, we&apos;ll track balances for each location.
         </p>
       </div>
-      <Button size="sm" variant="outline">
+      <GatedButton size="sm" variant="outline" canUse={false}>
         <PlusCircle className="mr-2 h-4 w-4" />
         Add first item
-      </Button>
+      </GatedButton>
     </div>
   );
 }

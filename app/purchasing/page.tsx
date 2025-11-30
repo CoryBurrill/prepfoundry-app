@@ -7,10 +7,12 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GatedButton } from "@/components/gated-button";
 import { Separator } from "@/components/ui/separator";
-import { Package, PlusCircle } from "lucide-react";
+import { Badge, Clock, CreditCard, DollarSign, Package, PlusCircle, Truck } from "lucide-react";
 import { getPageAccess } from "@/lib/access";
 
 export default function GroceryPage() {
@@ -60,33 +62,127 @@ async function PlannerContent() {
   //  const items = await getHouseholdPantryInventory(household!.id);
   //  const hasItems = items.length > 0;
 
-    const recipes: any[] = [];
-    const hasRecipes = recipes.length > 0;
+  const monthlyBudget = 0;
+  const committedThisWeek = 0;
+  const ordersInFlight = 0;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-base font-semibold">Purchasing System</CardTitle>
-      </CardHeader>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Purchasing
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Turn grocery runs into a predictable, trackable system instead
+            of vibes.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <GatedButton size="sm" className="gap-1" canUse={false}>
+            <CreditCard className="h-4 w-4" />
+            Review upcoming orders
+          </GatedButton>
+          <Button size="sm" variant="outline" className="gap-1">
+            <Truck className="h-4 w-4" />
+            Delivery preferences
+          </Button>
+        </div>
+      </div>
 
-      <CardContent className="space-y-4">
-        {!hasRecipes ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/40 px-6 py-10 text-center">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">No list yet...</p>
-              <p className="text-xs text-muted-foreground max-w-sm">
-                List items coming soon. 
-              </p>
+      {/* Budget / pipeline */}
+      <div className="grid gap-3 md:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">
+              Monthly food budget
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Total planned spend for this month.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-1 text-2xl font-semibold">
+              <DollarSign className="h-5 w-5" />
+              {monthlyBudget.toFixed(0)}
             </div>
-            <Button size="sm" variant="outline">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add items
-            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">
+              Committed this week
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Orders in carts across vendors.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-1 text-2xl font-semibold">
+              <DollarSign className="h-5 w-5" />
+              {committedThisWeek.toFixed(0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">
+              Orders in flight
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Deliveries on the way to your door.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 text-2xl font-semibold">
+              <Truck className="h-5 w-5" />
+              {ordersInFlight}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Upcoming orders table */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">
+            Upcoming orders
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Once purchasing is wired up, this will show recurring orders,
+            one-offs, and auto-generated restocks.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-hidden rounded-lg border text-xs">
+            <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] bg-muted px-3 py-2 font-medium uppercase tracking-[0.14em] text-[10px] text-muted-foreground">
+              <span>Vendor</span>
+              <span className="text-right">Window</span>
+              <span className="text-right">Amount</span>
+              <span className="text-right">Status</span>
+            </div>
+            <Separator />
+            <div className="px-3 py-4 text-center text-[11px] text-muted-foreground">
+              No upcoming orders yet. As you build habits in inventory,
+              recipes, and grocery, this page will become your control tower.
+            </div>
           </div>
-        ) : (
-          <div>Purchasing module coming soon…</div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {/* Future-facing note */}
+      <div className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+        <Clock className="h-3.5 w-3.5" />
+        <span>
+          Long-term: this is where subscriptions, &quot;subscribe &amp;
+          save&quot;, and smart restocking logic will live.
+        </span>
+        <Badge className="ml-auto text-[10px]">
+          concept mode
+        </Badge>
+      </div>
+    </div>
   );
 }
