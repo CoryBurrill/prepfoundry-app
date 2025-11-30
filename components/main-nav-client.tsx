@@ -23,6 +23,7 @@ const navItems = [
   { href: "/planner", label: "Planner" },
   { href: "/grocery", label: "Grocery" },
   { href: "/purchasing", label: "Purchasing" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function MainNavClient() {
