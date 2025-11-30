@@ -9,14 +9,10 @@ import { Separator } from "@/components/ui/separator";
 import { Package, PlusCircle } from "lucide-react";
 
 export default function InventoryPage() {
-  // ⬇️ This component stays sync; it just defines the shell + Suspense boundary
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 lg:px-0">
-        {/* Header is static, no async here */}
         <HeaderSection />
-
-        {/* Async, request-bound stuff goes inside Suspense */}
         <Suspense
           fallback={
             <Card>
@@ -41,7 +37,6 @@ export default function InventoryPage() {
 }
 
 function HeaderSection() {
-  // NOTE: no cookies/ensureUserContext here; keep this purely presentational
   return (
     <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
@@ -60,7 +55,6 @@ function HeaderSection() {
   );
 }
 
-// ⬇️ This is the async Server Component that actually hits Supabase
 async function InventoryContent() {
   const { user, household } = await ensureUserContext();
 

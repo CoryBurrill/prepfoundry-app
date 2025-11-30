@@ -1,8 +1,7 @@
 // app/dashboard/page.tsx
-import { ensureUserContext } from "@/lib/ensureUserContext";
-import { featureGate } from "@/lib/feature-gate";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getPageAccess } from "@/lib/access";
 import {
   Card,
   CardHeader,
@@ -26,6 +25,7 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { GatedButton } from "@/components/gated-button";
 
 export default function DashboardPage() {
   return (
@@ -47,31 +47,22 @@ export default function DashboardPage() {
 
 
 async function DashboardContent() {
-  const { user, profile, household } = await ensureUserContext();
+  const { user, profile, household, canView, canUse, isAdmin } =
+    await getPageAccess("dashboard");
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  // Call featureGate once per feature
-  const betaGate = await featureGate("beta_public_dashboard");
-  const privateGate = await featureGate("beta_private_extras");
-
-  const hasPublicBeta = betaGate.allowed;
-  const hasPrivateExtras = privateGate.allowed;
-
-  const isAdmin =
-    hasPrivateExtras || profile?.role === "admin" || profile?.role === "owner";
-
-  if (!hasPublicBeta) {
+  if (!canView) {
     // Logged in, but not in any beta
     return (
       <main className="p-6 max-w-xl mx-auto space-y-4">
         <h1 className="text-2xl font-semibold">You’re in! (Sort of)</h1>
         <p className="text-sm text-muted-foreground">
           Thanks for signing up, {profile?.display_name ?? "friend"}. We’re
-          rolling out the beta in waves. You don’t have access yet, but you’re
-          on the list.
+          rolling out access in waves. Your account does not have 
+          dashboard access yet.
         </p>
         <p className="text-sm text-muted-foreground">
           If you think this is a mistake, message me and I’ll flip your role in
@@ -113,9 +104,9 @@ async function DashboardContent() {
                 Next: connect a grocery vendor and set your household
                 preferences.
               </p>
-              <Button size="sm" variant="outline" className="w-full">
+              <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
                 Continue setup
-              </Button>
+              </GatedButton>
             </CardContent>
           </Card>
         </section>
@@ -132,23 +123,23 @@ async function DashboardContent() {
             <QuickActionButton
               icon={<PlusCircle className="h-4 w-4" />}
               label="Add inventory item"
-              description="Log a new ingredient or restock something."
-            />
+              description="Log a new ingredient or restock something." 
+              canUse={canUse}            />
             <QuickActionButton
               icon={<ReceiptText className="h-4 w-4" />}
               label="Scan receipt"
-              description="Pull items in automatically from your last shop."
-            />
+              description="Pull items in automatically from your last shop." 
+              canUse={canUse}            />
             <QuickActionButton
               icon={<CalendarClock className="h-4 w-4" />}
               label="Plan this week"
-              description="Fill your weekly meal plan in minutes."
-            />
+              description="Fill your weekly meal plan in minutes." 
+              canUse={canUse}            />
             <QuickActionButton
               icon={<Timer className="h-4 w-4" />}
               label="Open timers"
-              description="Multi-timer for active cooking sessions."
-            />
+              description="Multi-timer for active cooking sessions." 
+              canUse={canUse}            />
           </div>
         </section>
 
@@ -309,12 +300,12 @@ async function DashboardContent() {
                     <li>• Oats, Frozen berries, Olive oil…</li>
                   </ul>
                   <div className="mt-2 flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <GatedButton size="sm" variant="outline" className="flex-1" canUse={false}>
                       Open list
-                    </Button>
-                    <Button size="sm" className="flex-1">
+                    </GatedButton>
+                    <GatedButton size="sm" className="flex-1" canUse={false}>
                       Send to cart
-                    </Button>
+                    </GatedButton>
                   </div>
                 </div>
 
@@ -394,9 +385,9 @@ async function DashboardContent() {
 
                     <Separator />
 
-                    <Button size="sm" variant="outline" className="w-full">
+                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
                       Open full analytics
-                    </Button>
+                    </GatedButton>
                   </>
                 ) : (
                   <>
@@ -423,9 +414,9 @@ async function DashboardContent() {
 
                     <Separator />
 
-                    <Button size="sm" variant="outline" className="w-full">
+                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
                       See full planner
-                    </Button>
+                    </GatedButton>
                   </>
                 )}
               </CardContent>
@@ -443,11 +434,14 @@ type QuickActionButtonProps = {
   icon: React.ReactNode;
   label: string;
   description: string;
+  canUse: boolean;
 };
 
-function QuickActionButton({ icon, label, description }: QuickActionButtonProps) {
+function QuickActionButton({ icon, label, description, canUse 
+}: QuickActionButtonProps & { canUse: boolean }) {
   return (
-    <Button
+    <GatedButton
+      canUse={canUse}
       variant="outline"
       className="flex h-auto items-start justify-start gap-3 rounded-xl border-dashed bg-background/40 px-3 py-3 text-left hover:bg-background"
     >
@@ -460,7 +454,7 @@ function QuickActionButton({ icon, label, description }: QuickActionButtonProps)
           {description}
         </span>
       </span>
-    </Button>
+    </GatedButton>
   );
 }
 
