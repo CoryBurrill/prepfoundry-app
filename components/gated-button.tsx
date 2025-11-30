@@ -40,7 +40,7 @@ export function GatedButton(props: GatedButtonProps) {
 
       {showDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-transition"
           onClick={() => setShowDialog(false)}
         >
           <div
@@ -53,6 +53,7 @@ export function GatedButton(props: GatedButtonProps) {
               <Button
                 size="sm"
                 variant="outline"
+                className="text-slate-900 border-white hover:text-slate-300"
                 onClick={() => setShowDialog(false)}
               >
                 Close

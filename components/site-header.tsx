@@ -29,11 +29,12 @@ export function SiteHeader() {
 
           {/* CENTER — Navigation */}
           <div className="hidden sm:flex items-center gap-6">
+            <NavLink href="/dashboard">Dashboard</NavLink>
             <NavLink href="/inventory">Inventory</NavLink>
             <NavLink href="/recipes">Recipes</NavLink>
             <NavLink href="/planner">Planner</NavLink>
             <NavLink href="/grocery">Grocery</NavLink>
-            <NavLink href="/po">Purchasing</NavLink>
+            <NavLink href="/purchasing">Purchasing</NavLink>
           </div>
 
           {/* RIGHT — Auth */}

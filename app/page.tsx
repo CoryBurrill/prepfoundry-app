@@ -43,39 +43,6 @@ export default function Page() {
       <div className="relative z-10">
           {/* Outer container */}
           <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-10 sm:px-6 lg:px-8">
-            {/* Top nav */}
-            <header className="flex items-center justify-between pb-10">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-lg">
-                  <Image
-                    src="/logoWh.png"
-                    alt="PrepFoundry logo"
-                    width={32}
-                    height={32}
-                    className="rounded-lg"
-                  />
-                </div>
-                <span className="text-lg font-semibold tracking-tight">
-                  PrepFoundry
-                </span>
-              </div>
-
-              <nav className="flex items-center gap-4 text-sm text-slate-300">
-                <Link
-                  href="/auth/login"
-                  className="rounded-full border border-transparent px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-slate-700 hover:bg-slate-900/60"
-                >
-                  User Login
-                </Link>
-                <Link
-                  href="/auth/sign-up"
-                  className="rounded-full bg-slate-50 px-4 py-1.5 text-xs font-semibold text-slate-950 transition hover:bg-slate-200"
-                >
-                  Join the beta
-                </Link>
-              </nav>
-            </header>
-
             {/* Main content */}
             <div className="flex flex-1 flex-col gap-12 pb-16 lg:flex-row lg:items-center lg:gap-16">
               {/* Hero text */}
@@ -258,11 +225,6 @@ export default function Page() {
                 </div>
               </section>
             </div>
-
-            {/* Bottom strip */}
-            <Suspense>
-                <SiteFooter />
-            </Suspense>
           </div>
         </div>
     </main>

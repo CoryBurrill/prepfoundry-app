@@ -1,32 +1,27 @@
 // app/inventory/page.tsx
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { ensureUserContext } from "@/lib/ensureUserContext";
 import { getHouseholdPantryInventory } from "@/lib/inventory";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Package, PlusCircle } from "lucide-react";
+import { getPageAccess } from "@/lib/access";
 
 export default function InventoryPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 lg:px-0">
-        <HeaderSection />
         <Suspense
           fallback={
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Household pantry items
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Loading inventory…
-                </p>
-              </CardContent>
-            </Card>
+            <div className="text-sm text-muted-foreground">
+              Loading inventory…
+            </div>
           }
         >
           <InventoryContent />
@@ -36,33 +31,33 @@ export default function InventoryPage() {
   );
 }
 
-function HeaderSection() {
-  return (
-    <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Inventory
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Live view of pantry items in your kitchen.
-        </p>
-      </div>
-      <Button size="sm">
-        <PlusCircle className="mr-2 h-4 w-4" />
-        Add item
-      </Button>
-    </section>
-  );
-}
-
 async function InventoryContent() {
-  const { user, household } = await ensureUserContext();
+  const { user, profile, household, canView, canUse, isAdmin } =
+    await getPageAccess("inventory");
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  const items = await getHouseholdPantryInventory();
+  if (!canView) {
+    return (
+      <main className="p-6 max-w-xl mx-auto space-y-4">
+        <h1 className="text-2xl font-semibold">You’re in! (Sort of)</h1>
+        <p className="text-sm text-muted-foreground">
+          Thanks for signing up, {profile?.display_name ?? "friend"}. We’re
+          rolling out access in waves. Your account doesn&apos;t have inventory
+          access yet.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          If you think this is a mistake, message me and I’ll flip your role in
+          the beta.
+        </p>
+      </main>
+    );
+  }
+
+  // real inventory query
+  const items = await getHouseholdPantryInventory(household!.id);
   const hasItems = items.length > 0;
 
   return (
@@ -83,7 +78,11 @@ async function InventoryContent() {
   );
 }
 
-function EmptyInventoryState({ householdName }: { householdName: string | null }) {
+function EmptyInventoryState({
+  householdName,
+}: {
+  householdName: string | null;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/40 px-6 py-10 text-center">
       <Package className="h-8 w-8 text-muted-foreground" />

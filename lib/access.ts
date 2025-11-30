@@ -6,7 +6,35 @@ import { featureGate } from "@/lib/feature-gate";
 
 const BETA_MODE = true; // flip to false when you want everything public
 
-type PageKey = "dashboard";
+type PageKey = "dashboard" | "inventory" | "recipes" | "planner" | "grocery";
+
+type PageAccessConfig = {
+  viewFeature: string;
+  interactiveFeature?: string;
+};
+
+const PAGE_FEATURES: Record<PageKey, PageAccessConfig> = {
+  dashboard: {
+    viewFeature: "beta_public_dashboard",
+    interactiveFeature: "beta_private_extras",
+  },
+  inventory: {
+    viewFeature: "beta_public_inventory",
+    interactiveFeature: "beta_private_extras",
+  },
+  recipes: {
+    viewFeature: "beta_public_recipes",
+    interactiveFeature: "beta_private_extras",
+  },
+  planner: {
+    viewFeature: "beta_public_planner",
+    interactiveFeature: "beta_private_extras",
+  },
+  grocery: {
+    viewFeature: "beta_public_grocery",
+    interactiveFeature: "beta_private_extras",
+  },
+};
 
 type PageAccess = {
   user: any | null;
@@ -20,6 +48,7 @@ type PageAccess = {
 export async function getPageAccess(page: PageKey): Promise<PageAccess> {
   const { user, profile, household } = await ensureUserContext();
 
+  // Not logged in
   if (!user) {
     return {
       user: null,
@@ -31,40 +60,40 @@ export async function getPageAccess(page: PageKey): Promise<PageAccess> {
     };
   }
 
-  if (!BETA_MODE) {
-    const isAdmin =
-      profile?.role === "admin" || profile?.role === "owner";
+  const isAdmin =
+    profile?.role === "admin" || profile?.role === "owner";
 
+  // Admin OR beta mode off → full access
+  if (!BETA_MODE || isAdmin) {
     return {
       user,
       profile,
       household,
       canView: true,
       canUse: true,
-      isAdmin,
+      isAdmin: true,
     };
   }
 
-  // For now we only care about dashboard
-  const [betaGate, privateGate] = await Promise.all([
-    featureGate("beta_public_dashboard"),
-    featureGate("beta_private_extras"),
+  // Beta mode on → use feature flags per page
+  const config = PAGE_FEATURES[page];
+
+  const [viewGate, useGate] = await Promise.all([
+    featureGate(config.viewFeature),
+    config.interactiveFeature
+      ? featureGate(config.interactiveFeature)
+      : Promise.resolve({ allowed: false, reason: "disabled" as const }),
   ]);
 
-  const hasPublicBeta = !!betaGate.allowed;
-  const hasPrivateExtras = !!privateGate.allowed;
-
-  const isAdmin =
-    hasPrivateExtras ||
-    profile?.role === "admin" ||
-    profile?.role === "owner";
+  const canView = !!viewGate.allowed;
+  const canUse = !!useGate.allowed;
 
   return {
     user,
     profile,
     household,
-    canView: hasPublicBeta,
-    canUse: hasPrivateExtras,
-    isAdmin,
+    canView,
+    canUse,
+    isAdmin: false,
   };
 }

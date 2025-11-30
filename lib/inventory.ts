@@ -41,7 +41,7 @@ export type HouseholdPantryInventoryRow = {
   total_quantity: number;
 };
 
-export async function getHouseholdPantryInventory(): Promise<
+export async function getHouseholdPantryInventory(id: any): Promise<
   HouseholdPantryInventoryRow[]
 > {
   const { user, household } = await ensureUserContext();
