@@ -33,15 +33,15 @@ async function getServerSupabase() {
 
 export type HouseholdPantryInventoryRow = {
   id: string;
+  household_id: string;
   name: string;
-  emoji: string | null;
-  min_stock_quantity: number | null;
-  reorder_quantity: number | null;
+  description: string | null;
+  quantity: number;
+  min_quantity: number | null;
   preferred_unit_code: string | null;
-  total_quantity: number;
 };
 
-export async function getHouseholdPantryInventory(id: any): Promise<
+export async function getHouseholdPantryInventory(): Promise<
   HouseholdPantryInventoryRow[]
 > {
   const { user, household } = await ensureUserContext();
@@ -49,43 +49,31 @@ export async function getHouseholdPantryInventory(id: any): Promise<
 
   const supabase = await getServerSupabase();
 
-  // 1) base pantry items for this household
+  // Base pantry items for this household
   const { data: pantryItems, error: pantryError } = await supabase
-    .from("household_pantry_items")
+    .from("inventory_items")
     .select(
-      "id, name, emoji, min_stock_quantity, reorder_quantity, preferred_unit_id, sort_order"
+      `
+      id,
+      household_id,
+      name,
+      description,
+      quantity,
+      min_quantity,
+      preferred_unit_id
+    `
     )
-    .eq("household_id", household.id)
-    .order("sort_order", { ascending: true });
+    .eq("household_id", household.id);
 
   if (pantryError) throw pantryError;
 
-  const pantryIds = pantryItems?.map((p: any) => p.id) ?? [];
+  if (!pantryItems || pantryItems.length === 0) return [];
 
-  // 2) aggregate balances per pantry item
-  const balancesByPantryId = new Map<string, number>();
-
-  if (pantryIds.length > 0) {
-    const { data: balances, error: balancesError } = await supabase
-      .from("inventory_balances")
-      .select("household_pantry_item_id, quantity")
-      .eq("household_id", household.id)
-      .in("household_pantry_item_id", pantryIds);
-
-    if (balancesError) throw balancesError;
-
-    (balances ?? []).forEach((row: any) => {
-      const id = row.household_pantry_item_id;
-      const q = Number(row.quantity ?? 0);
-      balancesByPantryId.set(id, (balancesByPantryId.get(id) ?? 0) + q);
-    });
-  }
-
-  // 3) map preferred_unit_id -> units.code
+  // Map preferred_unit_id -> units.code
   const unitIds = Array.from(
     new Set(
-      (pantryItems ?? [])
-        .map((p: any) => p.preferred_unit_id)
+      pantryItems
+        .map((p) => p.preferred_unit_id as string | null)
         .filter(Boolean) as string[]
     )
   );
@@ -100,32 +88,34 @@ export async function getHouseholdPantryInventory(id: any): Promise<
 
     if (unitsError) throw unitsError;
 
-    (units ?? []).forEach((u: any) => {
+    (units ?? []).forEach((u) => {
       unitCodesById.set(u.id, u.code);
     });
   }
 
-  // 4) final shape for the UI
-  return (pantryItems ?? []).map((p: any) => {
-    const total = balancesByPantryId.get(p.id) ?? 0;
-    const unitCode = p.preferred_unit_id
+  // Final shape for the UI
+  return pantryItems.map((p) => {
+    const quantity = p.quantity !== null && p.quantity !== undefined
+      ? Number(p.quantity)
+      : 0;
+
+    const min_quantity =
+      p.min_quantity !== null && p.min_quantity !== undefined
+        ? Number(p.min_quantity)
+        : null;
+
+    const preferred_unit_code = p.preferred_unit_id
       ? unitCodesById.get(p.preferred_unit_id) ?? null
       : null;
 
     return {
       id: p.id,
+      household_id: p.household_id,
       name: p.name,
-      emoji: p.emoji ?? null,
-      min_stock_quantity:
-        p.min_stock_quantity !== null && p.min_stock_quantity !== undefined
-          ? Number(p.min_stock_quantity)
-          : null,
-      reorder_quantity:
-        p.reorder_quantity !== null && p.reorder_quantity !== undefined
-          ? Number(p.reorder_quantity)
-          : null,
-      preferred_unit_code: unitCode,
-      total_quantity: total,
+      description: p.description ?? null,
+      quantity,
+      min_quantity,
+      preferred_unit_code,
     };
   });
 }

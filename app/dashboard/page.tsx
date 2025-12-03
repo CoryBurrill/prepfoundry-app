@@ -104,7 +104,7 @@ async function DashboardContent() {
                 Next: connect a grocery vendor and set your household
                 preferences.
               </p>
-              <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
+              <GatedButton size="sm" variant="outline" className="w-full" canUse={false} href={""}>
                 Continue setup
               </GatedButton>
             </CardContent>
@@ -124,22 +124,27 @@ async function DashboardContent() {
               icon={<PlusCircle className="h-4 w-4" />}
               label="Add inventory item"
               description="Log a new ingredient or restock something." 
-              canUse={canUse}            />
+              canUse={false}
+              href="inventory/add"            />
             <QuickActionButton
               icon={<ReceiptText className="h-4 w-4" />}
               label="Scan receipt"
-              description="Pull items in automatically from your last shop." 
-              canUse={canUse}            />
+              description="Scan in items from your last shop."
+              canUse={false} 
+              href={""}            />
             <QuickActionButton
               icon={<CalendarClock className="h-4 w-4" />}
               label="Plan this week"
-              description="Fill your weekly meal plan in minutes." 
-              canUse={canUse}            />
+              description="Fill your weekly meal plan in minutes."
+              canUse={canUse} 
+              href={"/planner"}            />
             <QuickActionButton
               icon={<Timer className="h-4 w-4" />}
               label="Open timers"
-              description="Multi-timer for active cooking sessions." 
-              canUse={canUse}            />
+              description="Multi-timer for active cooking sessions."
+              canUse={false} 
+              href={""}            />
+            
           </div>
         </section>
 
@@ -300,10 +305,16 @@ async function DashboardContent() {
                     <li>• Oats, Frozen berries, Olive oil…</li>
                   </ul>
                   <div className="mt-2 flex gap-2">
-                    <GatedButton size="sm" variant="outline" className="flex-1" canUse={false}>
+                    <GatedButton
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      canUse={canUse}
+                      href="/grocery"
+                    >
                       Open list
                     </GatedButton>
-                    <GatedButton size="sm" className="flex-1" canUse={false}>
+                    <GatedButton size="sm" className="flex-1" canUse={false} href={""}>
                       Send to cart
                     </GatedButton>
                   </div>
@@ -385,7 +396,7 @@ async function DashboardContent() {
 
                     <Separator />
 
-                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
+                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false} href={""}>
                       Open full analytics
                     </GatedButton>
                   </>
@@ -414,7 +425,7 @@ async function DashboardContent() {
 
                     <Separator />
 
-                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false}>
+                    <GatedButton size="sm" variant="outline" className="w-full" canUse={false} href={""}>
                       See full planner
                     </GatedButton>
                   </>
@@ -435,26 +446,28 @@ type QuickActionButtonProps = {
   label: string;
   description: string;
   canUse: boolean;
+  href: string;
 };
 
-function QuickActionButton({ icon, label, description, canUse 
+function QuickActionButton({ icon, label, description, canUse, href 
 }: QuickActionButtonProps & { canUse: boolean }) {
   return (
-    <GatedButton
-      canUse={canUse}
-      variant="outline"
-      className="flex h-auto items-start justify-start gap-3 rounded-xl border-dashed bg-background/40 px-3 py-3 text-left hover:bg-background"
-    >
-      <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border text-xs">
+    <div className="rounded-lg border bg-card p-3 shadow-sm">
+      <div className="mb-3 flex items-center gap-2 text-sm">
         {icon}
-      </span>
-      <span className="flex flex-1 flex-col">
-        <span className="text-xs font-medium leading-tight">{label}</span>
-        <span className="mt-0.5 text-[11px] text-muted-foreground">
-          {description}
-        </span>
-      </span>
-    </GatedButton>
+        <span className="font-medium">{label}</span>
+      </div>
+
+      <p className="mb-3 text-xs text-muted-foreground">{description}</p>
+      <GatedButton
+        canUse={canUse}
+        href={href}
+        size="sm"
+        className="w-full justify-center"
+      >
+        {label}
+      </GatedButton>
+    </div>
   );
 }
 

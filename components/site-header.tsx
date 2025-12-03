@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { AuthButton } from "@/components/auth-button";
 import { MainNavClient } from "@/components/main-nav-client";
+import { Button } from "./ui/button";
 
 export function SiteHeader() {
   return (
@@ -26,14 +27,13 @@ export function SiteHeader() {
             </span>
           </Link>
         </div>
-
-        {/* nav (client) */}
+        <Link
+          href="/feedback"
+          className="text-xs text-muted-foreground hover:text-foreground transition"
+        >
+          Feedback
+        </Link>
         <MainNavClient />
-
-        {/* auth (server, behind Suspense) */}
-        <Suspense fallback={<div className="h-8 w-16 rounded-md bg-muted" />}>
-          <AuthButton />
-        </Suspense>
       </div>
     </header>
   );

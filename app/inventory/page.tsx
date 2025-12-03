@@ -1,6 +1,7 @@
 // app/inventory/page.tsx
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getHouseholdPantryInventory } from "@/lib/inventory";
 import {
   Card,
@@ -8,7 +9,6 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { GatedButton } from "@/components/gated-button";
 import { Separator } from "@/components/ui/separator";
 import { Package, PlusCircle } from "lucide-react";
@@ -33,7 +33,7 @@ export default function InventoryPage() {
 }
 
 async function InventoryContent() {
-  const { user, profile, household, canView, canUse, isAdmin } =
+  const { user, profile, household, canView, canUse, isAdmin} =
     await getPageAccess("inventory");
 
   if (!user) {
@@ -57,8 +57,8 @@ async function InventoryContent() {
     );
   }
 
-  // real inventory query
-  const items = await getHouseholdPantryInventory(household!.id);
+  // Real inventory query
+  const items = await getHouseholdPantryInventory();
   const hasItems = items.length > 0;
 
   return (
@@ -67,10 +67,11 @@ async function InventoryContent() {
         <CardTitle className="text-base font-semibold">
           Household pantry items
         </CardTitle>
+        {/* Optional: quick add button later */}
       </CardHeader>
       <CardContent className="space-y-4">
         {!hasItems ? (
-          <EmptyInventoryState householdName={household?.name ?? null} />
+          <EmptyInventoryState householdName={household?.name ?? null} canUse={canUse} href="/inventory/add" />
         ) : (
           <InventoryTable items={items} />
         )}
@@ -81,8 +82,12 @@ async function InventoryContent() {
 
 function EmptyInventoryState({
   householdName,
+  canUse,
+  href,
 }: {
   householdName: string | null;
+  canUse: boolean;
+  href: string;
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-muted/40 px-6 py-10 text-center">
@@ -95,7 +100,7 @@ function EmptyInventoryState({
           receipts, we&apos;ll track balances for each location.
         </p>
       </div>
-      <GatedButton size="sm" variant="outline" canUse={false}>
+      <GatedButton size="sm" variant="outline" canUse={canUse} href={href}>
         <PlusCircle className="mr-2 h-4 w-4" />
         Add first item
       </GatedButton>
@@ -130,9 +135,11 @@ type Row = Awaited<ReturnType<typeof getHouseholdPantryInventory>>[number];
 
 function InventoryRow({ item }: { item: Row }) {
   const unit = item.preferred_unit_code ?? "";
-  const qty = item.total_quantity;
-  const min = item.min_stock_quantity ?? 0;
-  const reorder = item.reorder_quantity ?? 0;
+  const qty = item.quantity;
+  const min = item.min_quantity ?? 0;
+
+  // For now, reuse min as reorder; later you can add a dedicated field
+  const reorder = min;
 
   const isLow = qty <= min && (min > 0 || reorder > 0);
 
@@ -140,9 +147,13 @@ function InventoryRow({ item }: { item: Row }) {
     <div className="grid grid-cols-[2fr_1fr_1fr_1fr] items-center px-3 py-2.5 text-sm">
       <div className="flex flex-col">
         <span className="text-xs font-medium flex items-center gap-1">
-          {item.emoji && <span>{item.emoji}</span>}
           {item.name}
         </span>
+        {item.description && (
+          <span className="text-[11px] text-muted-foreground">
+            {item.description}
+          </span>
+        )}
       </div>
 
       <span className="text-right text-xs">

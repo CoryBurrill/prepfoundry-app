@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-
+import { AuthButton } from "@/components/auth-button";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -48,14 +48,17 @@ export function MainNavClient() {
       </nav>
 
       {/* Mobile menu */}
-      <div className="md:hidden">
+      <div className="flex items-center gap-2">
         <Sheet>
+          <div className="md:hidden">
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <Menu className="h-4 w-4" />
               <span className="sr-only">Open navigation</span>
             </Button>
           </SheetTrigger>
+          </div>
+          <AuthButton/>
           <SheetContent side="right" className="w-64">
             <SheetHeader>
               <SheetTitle className="text-sm">Navigation</SheetTitle>
